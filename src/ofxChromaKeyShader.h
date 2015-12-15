@@ -41,6 +41,7 @@ public:
 	void updateBgColorPos(float x, float y);
 	void updateBgColor(ofPixelsRef camPixRef);
 	void updateChromakeyMask(ofTexture input_tex, ofTexture bg_tex);
+    void updateChromakeyMask(ofTexture input_tex, ofTexture bg_tex, float w, float h);
 
 	void drawDetailMask(float x, float y, float w, float h);
 	void drawBaseMask(float x, float y, float w, float h);

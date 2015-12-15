@@ -216,8 +216,12 @@ void ofxChromaKeyShader::updateBgColor(ofPixelsRef camPixRef){
 	bgColor = ofFloatColor(scalar[0]/255, scalar[1]/255, scalar[2]/255);
 }
 
-//--------------------------------------------------------------
 void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_tex){
+    updateChromakeyMask(input_tex, bg_tex, width, height);
+    
+}
+//--------------------------------------------------------------
+void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_tex, float width, float height){
 	// == 1. Detailed mask ==========================================================
 	shader_detail.begin();
 		// Input params to shader
@@ -227,7 +231,7 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 		// Draw FBO
 		fbo_detail.begin();			
 			ofSetColor(255,255,255);
-			input_tex.draw(0, 0, width, height);			
+			input_tex.draw(0, 0);
 		fbo_detail.end();
 	shader_detail.end();
 	// == 2a. Base mask - from cam image ==========================================================
@@ -240,7 +244,7 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 		// Draw FBO
 		fbo_base.begin();			
 			ofSetColor(255,255,255);
-			input_tex.draw(0, 0, width, height);			
+			input_tex.draw(0, 0);
 		fbo_base.end();
 	shader_base.end();
 	// == 2b. Base mask - horizontal blur ==========================================================
@@ -252,7 +256,7 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 		// Draw FBO
 		fbo_pingpong.begin();			
 			ofSetColor(255,255,255);
-			fbo_base.draw(0, 0, width, height);			
+			fbo_base.draw(0, 0);
 		fbo_pingpong.end();
 	shader_hblur.end();
 	// == 2c. Base mask - vertical blur ==========================================================
@@ -264,7 +268,7 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 		// Draw FBO
 		fbo_base.begin();			
 			ofSetColor(255,255,255);
-			fbo_pingpong.draw(0, 0, width, height);			
+			fbo_pingpong.draw(0, 0);
 		fbo_base.end();
 	shader_vblur.end();
 	// == 2d. Base mask - dilation ==========================================================
@@ -277,7 +281,7 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 		fbo_pingpong.begin();			
 			ofSetColor(255,255,255);
 			ofClear(0);
-			fbo_base.draw(0, 0, width, height);			
+			fbo_base.draw(0, 0);
 		fbo_pingpong.end();
 	shader_dilate.end();
 	// == 2e. Base mask - erosion ==========================================================
@@ -290,7 +294,7 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 		fbo_base.begin();			
 			ofSetColor(255,255,255);
 			ofClear(0);
-			fbo_pingpong.draw(0, 0, width, height);			
+			fbo_pingpong.draw(0, 0);
 		fbo_base.end();
 	shader_erode.end();
 	// == 3a. Chroma mask - inverted mask ==========================================================
@@ -304,7 +308,7 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 		fbo_chroma.begin();			
 			ofSetColor(255,255,255);
 			ofClear(0);
-			input_tex.draw(0, 0, width, height);			
+			input_tex.draw(0, 0);
 		fbo_chroma.end();
 	shader_chroma.end();
 	// == 3b. Chroma mask - horizontal blur ==========================================================
@@ -316,7 +320,7 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 		// Draw FBO
 		fbo_pingpong.begin();			
 			ofSetColor(255,255,255);
-			fbo_chroma.draw(0, 0, width, height);			
+			fbo_chroma.draw(0, 0);
 		fbo_pingpong.end();
 	shader_hblur.end();
 	// == 3c. Chroma mask - vertical blur ==========================================================
@@ -328,7 +332,7 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 		// Draw FBO
 		fbo_chroma.begin();			
 			ofSetColor(255,255,255);
-			fbo_pingpong.draw(0, 0, width, height);			
+			fbo_pingpong.draw(0, 0);
 		fbo_chroma.end();
 	shader_vblur.end();
 	// == 4. Final mask - Green spill, chroma mask and combine all =================================
@@ -347,7 +351,7 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 		fbo_pingpong.begin();
 			ofClear(0.f, 0.f);			
 			ofSetColor(255,255,255);
-			input_tex.draw(0, 0, width, height);
+			input_tex.draw(0, 0);
 		fbo_pingpong.end();
 	shader_final.end();
 
@@ -360,7 +364,7 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 		ofClear(0.f, 0.f);
 		ofSetColor(255,255,255);
 		if(bg_tex.isAllocated())
-			bg_tex.draw(0, 0, width, height);
+			bg_tex.draw(0, 0);
 		ofPushMatrix();
 			ofTranslate(width/2, height/2);
 			ofScale(photoZoom, photoZoom);
