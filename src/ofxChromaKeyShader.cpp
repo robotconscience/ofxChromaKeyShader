@@ -39,26 +39,33 @@ ofxChromaKeyShader::ofxChromaKeyShader(int _width, int _height)
 	fbo_pingpong.allocate(width, height, GL_RGBA);
 	fbo_final.allocate(width, height, GL_RGBA);
 
-	paramGp.setName("greenscreenSettings");
-	paramGp.add(bgColorPos.set("bgColorPos", ofVec2f(width*0.75, height*0.1), ofVec2f(0.0), ofVec2f(width, height)));
-	paramGp.add(bgColorSize.set("bgColorROIsize", 20, 1, height));
+	generalParams.setName("DO NOT CHANGE - HERE");
+	generalParams.add(bgColorPos.set("bgColorPos", ofVec2f(width*0.75, height*0.1), ofVec2f(0.0), ofVec2f(width, height)));
+	generalParams.add(bgColorSize.set("bgColorROIsize", 20, 1, height));
 	bgColor.set("bgColor", ofFloatColor(0.5020, 0.7373, 0.5137, 1.0), ofFloatColor(0.0, 0.0), ofFloatColor(1.0, 1.0));
-	paramGp.add(bgColor);
-	paramGp.add(baseMaskStrength.set("baseMaskStrength", .6, 0.0, 1.0));
-	paramGp.add(chromaMaskStrength.set("chromaMaskStrength", .4, 0.0, 1.0));	
-	paramGp.add(greenSpillStrength.set("greenspillStrength", .4, 0.0, 1.0));
-	paramGp.add(multiplyFilterHueOffset.set("multiplyFilterHueOffset", 0.25, 0.0, 1.0));
-	paramGp.add(blurValue.set("blurValue", 512.f, 0.0, 4096.f));
-	paramGp.add(dilateStep.set("dilateStep", 3, 0, 7));
-	paramGp.add(erodeStep.set("erodeStep", 1, 0, 7));
-	paramGp.add(baseMaskClip.set("baseMaskClip(b,w)", ofVec2f(.2, .6), ofVec2f(0.0), ofVec2f(1.0)));
-	paramGp.add(detailMaskClip.set("detailMaskClip(b,w)", ofVec2f(.565, .82), ofVec2f(0.0), ofVec2f(1.0)));
-	paramGp.add(endMaskClip.set("endMaskClip(b,w)", ofVec2f(.1, .6), ofVec2f(0.0), ofVec2f(1.0)));
-	paramGp.add(clippingMaskTL.set("clippingMask(TL)", ofVec2f(0.f), ofVec2f(0.f), ofVec2f(width, height)));
-	paramGp.add(clippingMaskBR.set("clippingMask(BR)", ofVec2f(0.f), ofVec2f(0.f), ofVec2f(width, height)));
-	paramGp.add(photoOffset.set("photoOffset", ofVec2f(0.f), ofVec2f(-width, -height), ofVec2f(width, height)));
-	paramGp.add(photoZoom.set("photoZoom", 1.f, 1.f, 4.f));
-	
+	generalParams.add(bgColor);
+    
+    generalParams.add(baseMaskClip.set("baseMaskClip(b,w)", ofVec2f(.2, .6), ofVec2f(0.0), ofVec2f(1.0)));
+    generalParams.add(detailMaskClip.set("detailMaskClip(b,w)", ofVec2f(.565, .82), ofVec2f(0.0), ofVec2f(1.0)));
+    generalParams.add(endMaskClip.set("endMaskClip(b,w)", ofVec2f(.1, .6), ofVec2f(0.0), ofVec2f(1.0)));
+    
+	generalParams.add(baseMaskStrength.set("baseMaskStrength", .6, 0.0, 1.0));
+	generalParams.add(chromaMaskStrength.set("chromaMaskStrength", .4, 0.0, 1.0));
+	generalParams.add(greenSpillStrength.set("greenspillStrength", .4, 0.0, 1.0));
+	generalParams.add(multiplyFilterHueOffset.set("multiplyFilterHueOffset", 0.25, 0.0, 1.0));
+	generalParams.add(blurValue.set("blurValue", 512.f, 0.0, 4096.f));
+	generalParams.add(dilateStep.set("dilateStep", 3, 0, 7));
+	generalParams.add(erodeStep.set("erodeStep", 1, 0, 7));
+    
+
+    positionParams.setName("IMAGE POSITION");
+    positionParams.add(photoOffset.set("photoOffset", ofVec2f(0.f), ofVec2f(-width, -height), ofVec2f(width, height)));
+    positionParams.add(photoZoom.set("photoZoom", 1.f, 0.1f, 4.f));
+    positionParams.add(photoRotation.set("photoRotation", 0.0f, 0, 360));
+
+	positionParams.add(clippingMaskTL.set("clippingMask(TopRight)", ofVec2f(0.f), ofVec2f(0.f), ofVec2f(width, height)));
+	positionParams.add(clippingMaskBR.set("clippingMask(BottomRight)", ofVec2f(0.f), ofVec2f(0.f), ofVec2f(width, height)));
+    
 	loadShaders();
 }
 
@@ -221,7 +228,15 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
     
 }
 //--------------------------------------------------------------
-void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_tex, float width, float height){
+void ofxChromaKeyShader::updateChromakeyMask(ofTexture inputTex, ofTexture bg_tex, float width, float height){
+    ofFbo input_tex;
+    input_tex.allocate(width,height,GL_RGBA);
+    
+    input_tex.begin();
+        ofClear(0,0,0,255); //let's clear the fbo with solid black
+        inputTex.draw(0, 0,width, inputTex.getHeight()*(float)width/inputTex.getWidth() );
+    input_tex.end();
+    
 	// == 1. Detailed mask ==========================================================
 	shader_detail.begin();
 		// Input params to shader
@@ -231,7 +246,7 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 		// Draw FBO
 		fbo_detail.begin();			
 			ofSetColor(255,255,255);
-			input_tex.draw(0, 0);
+            input_tex.draw(0, 0);
 		fbo_detail.end();
 	shader_detail.end();
 	// == 2a. Base mask - from cam image ==========================================================
@@ -243,8 +258,8 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 		shader_base.setUniform1f("baseMaskStrength", baseMaskStrength);
 		// Draw FBO
 		fbo_base.begin();			
-			ofSetColor(255,255,255);
-			input_tex.draw(0, 0);
+            ofSetColor(255,255,255);
+            input_tex.draw(0, 0);
 		fbo_base.end();
 	shader_base.end();
 	// == 2b. Base mask - horizontal blur ==========================================================
@@ -281,7 +296,7 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 		fbo_pingpong.begin();			
 			ofSetColor(255,255,255);
 			ofClear(0);
-			fbo_base.draw(0, 0);
+            fbo_base.draw(0, 0);
 		fbo_pingpong.end();
 	shader_dilate.end();
 	// == 2e. Base mask - erosion ==========================================================
@@ -294,7 +309,7 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 		fbo_base.begin();			
 			ofSetColor(255,255,255);
 			ofClear(0);
-			fbo_pingpong.draw(0, 0);
+            fbo_pingpong.draw(0, 0);
 		fbo_base.end();
 	shader_erode.end();
 	// == 3a. Chroma mask - inverted mask ==========================================================
@@ -308,7 +323,7 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 		fbo_chroma.begin();			
 			ofSetColor(255,255,255);
 			ofClear(0);
-			input_tex.draw(0, 0);
+            input_tex.draw(0, 0);
 		fbo_chroma.end();
 	shader_chroma.end();
 	// == 3b. Chroma mask - horizontal blur ==========================================================
@@ -332,7 +347,7 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 		// Draw FBO
 		fbo_chroma.begin();			
 			ofSetColor(255,255,255);
-			fbo_pingpong.draw(0, 0);
+            fbo_pingpong.draw(0, 0);
 		fbo_chroma.end();
 	shader_vblur.end();
 	// == 4. Final mask - Green spill, chroma mask and combine all =================================
@@ -351,7 +366,7 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 		fbo_pingpong.begin();
 			ofClear(0.f, 0.f);			
 			ofSetColor(255,255,255);
-			input_tex.draw(0, 0);
+            input_tex.draw(0, 0);
 		fbo_pingpong.end();
 	shader_final.end();
 
@@ -364,11 +379,12 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 		ofClear(0.f, 0.f);
 		ofSetColor(255,255,255);
 		if(bg_tex.isAllocated())
-			bg_tex.draw(0, 0);
+			bg_tex.draw(0, 0,width, bg_tex.getHeight()*(float)width/bg_tex.getWidth());
 		ofPushMatrix();
-			ofTranslate(width/2, height/2);
-			ofScale(photoZoom, photoZoom);
-			fbo_pingpong.getTexture().drawSubsection(photoOffset.get().x + clipX - width/2, photoOffset.get().y + clipY - height/2, clipW, clipH, clipX, clipY, clipW, clipH);
+			ofTranslate(photoOffset.get().x + width/2, photoOffset.get().y + height/2);
+            ofRotate(photoRotation);
+            ofScale(photoZoom, photoZoom);
+			fbo_pingpong.getTexture().drawSubsection( clipX - width/2, clipY - height/2, clipW, clipH, clipX, clipY, clipW, clipH);
 		ofPopMatrix();
 	fbo_final.end();
 }

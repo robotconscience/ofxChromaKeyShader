@@ -62,7 +62,8 @@ public:
 	ofFbo fbo_detail, fbo_base, fbo_pingpong, fbo_chroma, fbo_final;
 			
 	// Greenscreen params
-	ofParameterGroup paramGp;
+	ofParameterGroup positionParams;
+    ofParameterGroup generalParams;
 
 	ofParameter<ofVec2f> bgColorPos;
 	ofParameter<float> bgColorSize;
@@ -87,5 +88,7 @@ public:
 
 	ofParameter<ofVec2f> photoOffset;
 	ofParameter<float> photoZoom;
+    ofParameter<float> photoRotation;
+
 };
 
