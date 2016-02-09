@@ -15,14 +15,16 @@ void ofApp::setup(){
 	webcam.initGrabber(camW, camH);
 
 	// maskee
-	bg_image.loadImage("bg.jpg");
+	bg_image.load("bg.jpg");
 
 	// GUI
 	chromaGui.setDefaultHeight(18);
 	chromaGui.setDefaultWidth(camW/2);
-	chromaGui.setup(chromakey->paramGp, "chromaSettings.xml");
-	chromaGui.loadFromFile("chromaSettings.xml");
-	chromaGui.setPosition(0, 0);	
+    chromaGui.setup();
+    chromaGui.add(chromakey->generalParams);
+    chromaGui.add(chromakey->positionParams);
+//	chromaGui.loadFromFile("chromaSettings.xml");
+	chromaGui.setPosition(0, 0);
 }
 
 //--------------------------------------------------------------
@@ -37,8 +39,8 @@ void ofApp::update(){
 	webcam.update();
 	if(webcam.isFrameNew()) {
 		if(bUpdateBgColor)
-			chromakey->updateBgColor(webcam.getPixelsRef());
-		chromakey->updateChromakeyMask(webcam.getTextureReference(), bg_image.getTextureReference());
+			chromakey->updateBgColor(webcam.getPixels());
+		chromakey->updateChromakeyMask(webcam.getTexture(), bg_image.getTexture());
 	}
 }
 
@@ -62,7 +64,7 @@ void ofApp::draw(){
 			ofSetLineWidth(3);
 			ofSetColor(255);
 			ofVec2f bgColorPos = chromakey->bgColorPos.get();
-			ofRect(bgColorPos.x + camW/2, bgColorPos.y, chromakey->bgColorSize.get(), chromakey->bgColorSize.get());
+			ofDrawRectangle(bgColorPos.x + camW/2, bgColorPos.y, chromakey->bgColorSize.get(), chromakey->bgColorSize.get());
 			ofDrawBitmapString("bgColor", bgColorPos.x + camW/2, bgColorPos.y - 5);
 			ofPopStyle();
 		}

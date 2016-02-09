@@ -39,7 +39,7 @@ public:
 
 	void loadShaders();
 	void updateBgColorPos(float x, float y);
-	void updateBgColor(ofPixelsRef camPixRef);
+	void updateBgColor(const ofPixels & camPixRef);
 	void updateChromakeyMask(ofTexture input_tex, ofTexture bg_tex);
     void updateChromakeyMask(ofTexture input_tex, ofTexture bg_tex, float w, float h);
 

@@ -1,4 +1,4 @@
-ofxGui
-ofxOpenCv
 ofxChromaKeyShader
 ofxCv
+ofxGui
+ofxOpenCv

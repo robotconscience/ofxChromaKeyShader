@@ -215,7 +215,7 @@ void ofxChromaKeyShader::updateBgColorPos(float x, float y){
 }
 
 //--------------------------------------------------------------
-void ofxChromaKeyShader::updateBgColor(ofPixelsRef camPixRef){
+void ofxChromaKeyShader::updateBgColor(const ofPixels & camPixRef){
 	ofImage camImg(camPixRef);
 	camImg.crop(bgColorPos.get().x, bgColorPos.get().y, bgColorSize, bgColorSize);
 	Mat roiMat; roiMat = toCv(camImg);
