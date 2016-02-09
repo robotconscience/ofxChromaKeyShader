@@ -100,8 +100,9 @@ void ofxChromaKeyShader::drawFinalImage(float x, float y, float w, float h){
 }
 
 //--------------------------------------------------------------
-ofImage ofxChromaKeyShader::getFinalImage(){
-	ofImage finalImg; ofPixels pix; 
+ofImage & ofxChromaKeyShader::getFinalImage(){
+	static ofImage finalImg;
+    static ofPixels pix;
 	fbo_final.readToPixels(pix);
 	finalImg.setFromPixels(pix);
 	finalImg.setImageType(OF_IMAGE_COLOR);
@@ -215,7 +216,7 @@ void ofxChromaKeyShader::updateBgColorPos(float x, float y){
 }
 
 //--------------------------------------------------------------
-void ofxChromaKeyShader::updateBgColor(const ofPixels & camPixRef){
+void ofxChromaKeyShader::updateBgColor(ofPixels & camPixRef){
 	ofImage camImg(camPixRef);
 	camImg.crop(bgColorPos.get().x, bgColorPos.get().y, bgColorSize, bgColorSize);
 	Mat roiMat; roiMat = toCv(camImg);
@@ -229,8 +230,9 @@ void ofxChromaKeyShader::updateChromakeyMask(ofTexture input_tex, ofTexture bg_t
 }
 //--------------------------------------------------------------
 void ofxChromaKeyShader::updateChromakeyMask(ofTexture inputTex, ofTexture bg_tex, float width, float height){
-    ofFbo input_tex;
-    input_tex.allocate(width,height,GL_RGBA);
+    static ofFbo input_tex;
+    if ( !input_tex.isAllocated() || input_tex.getWidth() != width || input_tex.getHeight() != height )
+        input_tex.allocate(width,height,GL_RGBA);
     
     input_tex.begin();
         ofClear(0,0,0,255); //let's clear the fbo with solid black

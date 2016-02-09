@@ -39,7 +39,7 @@ public:
 
 	void loadShaders();
 	void updateBgColorPos(float x, float y);
-	void updateBgColor(const ofPixels & camPixRef);
+	void updateBgColor(ofPixels & camPixRef);
 	void updateChromakeyMask(ofTexture input_tex, ofTexture bg_tex);
     void updateChromakeyMask(ofTexture input_tex, ofTexture bg_tex, float w, float h);
 
@@ -49,7 +49,7 @@ public:
 	void drawFinalMask(float x, float y, float w, float h);
 	void drawFinalImage(float x, float y, float w, float h);
 
-	ofImage getFinalImage();
+	ofImage & getFinalImage();
 
 	// ==================== Variables ====================
 	ChromaKeyShaders chromakeyshaders;
